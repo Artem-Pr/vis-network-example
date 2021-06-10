@@ -9,3 +9,9 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+.App {
+  width: 600px;
+  height: 400px;
+  border: 1px solid lightgray;
+}
