@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import { Network } from 'vis-network/standalone/umd/vis-network.min'
 import { Data } from 'vis-network/dist/types'
 import { DataInterfaceEdges, Edge } from 'vis-network/dist/types/network/Network'
+import { FocusOptions } from 'vis-network/declarations/network/Network'
 
 function App() {
   const networkRef = useRef(null)
@@ -74,20 +75,27 @@ function App() {
       }
     }
 
+    const focusOptions: FocusOptions = {
+      scale: 1.5,
+      animation: {
+        duration: 500,
+        easingFunction: 'easeInOutQuad'
+      }
+    }
+
     const network = new Network(container, data, commonOptions)
     network.cluster(options)
 
     network.on('doubleClick', function (params) {
       if (params.nodes.length === 1) {
         if (network.isCluster(params.nodes[0])) {
-          //   is_clicked = false
           network.openCluster(params.nodes[0], {
             releaseFunction: function (clusterPosition, containedNodesPositions) {
               return containedNodesPositions
             }
           })
         } else {
-          network.clusterByConnection(params.nodes[0])
+          network.focus(params.nodes[0], focusOptions)
         }
       }
     })
