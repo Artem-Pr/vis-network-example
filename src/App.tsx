@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react'
 import { Network } from 'vis-network/standalone/umd/vis-network.min'
-import { Data } from 'vis-network/dist/types'
-import { DataInterfaceEdges, Edge } from 'vis-network/dist/types/network/Network'
-import { FocusOptions } from 'vis-network/declarations/network/Network'
+import { Options } from 'vis-network/dist/types'
+
+import { data } from './common/resorces'
 
 function App() {
   const networkRef = useRef(null)
@@ -11,60 +11,49 @@ function App() {
     const container: HTMLElement | null = networkRef.current
     if (!container) return
 
-    const nodes = [
-      { id: 1, label: 'Node 1' },
-      { id: 2, label: 'Node 2' },
-      { id: 3, label: 'Node 3' },
-      { id: 4, label: 'Node 4' },
-      { id: 5, label: 'Node 5' },
-      { id: 6, label: 'Node 6', cid: 1 },
-      { id: 7, label: 'Node 7', cid: 1 }
-    ]
-
-    const edges: Edge[] | DataInterfaceEdges = [
-      {
-        from: 1,
-        to: 3,
+    const commonOptions: Options = {
+      interaction: {
+        hover: true
+      },
+      nodes: {
+        shadow: true,
+        borderWidth: 2,
+        size: 20,
+        shape: 'dot',
+        scaling: {
+          label: {
+            min: 8,
+            max: 20
+          }
+        },
+        // title: 'node',
+        font: {
+          // color: '#ffffff',
+          face: 'Walter Turncoat',
+          size: 16,
+          strokeWidth: 1,
+          strokeColor: '#222'
+        }
+      },
+      edges: {
         arrows: {
           to: {
             enabled: true,
-            type: 'arrow'
-          },
-          from: {
-            enabled: true,
-            type: 'box'
-          },
-          middle: {
-            enabled: true,
-            type: 'diamond'
+            scaleFactor: 0.5 // Enable this to make the endpoints smaller/larger
           }
-        }
+        },
+        color: {
+          color: '#CCC',
+          highlight: '#A22'
+        },
+        width: 2,
+        // length: 25, // arrows length
+        hoverWidth: 2
       },
-      { from: 1, to: 2 },
-      { from: 2, to: 4 },
-      { from: 2, to: 5 },
-      { from: 3, to: 4 },
-      { from: 3, to: 6 },
-      { from: 3, to: 7 }
-    ]
-
-    const data: Data = {
-      nodes: nodes,
-      edges: edges
-    }
-
-    const commonOptions = {
-      // edges: {
-      //   arrows: {
-      //     to: {
-      //       scaleFactor: 5 // Enable this to make the endpoints smaller/larger
-      //     }
-      //   }
-      // },
       physics: {
         stabilization: false, // initial stabilization
         barnesHut: {
-          springLength: 100 // arrows length
+          springLength: 25 // arrows length
         }
       }
     }
@@ -75,16 +64,22 @@ function App() {
       }
     }
 
-    const focusOptions: FocusOptions = {
-      scale: 1.5,
-      animation: {
-        duration: 500,
-        easingFunction: 'easeInOutQuad'
-      }
-    }
+    // const focusOptions: FocusOptions = {
+    //   scale: 1.5,
+    //   animation: {
+    //     duration: 500,
+    //     easingFunction: 'easeInOutQuad'
+    //   }
+    // }
 
     const network = new Network(container, data, commonOptions)
     network.cluster(options)
+
+    // network.on('click', function (params) {
+    //   if (params.nodes.length === 1) {
+    //     network.focus(params.nodes[0], focusOptions)
+    //   }
+    // })
 
     network.on('doubleClick', function (params) {
       if (params.nodes.length === 1) {
@@ -95,13 +90,18 @@ function App() {
             }
           })
         } else {
-          network.focus(params.nodes[0], focusOptions)
+          network.clusterByConnection(params.nodes[0], {
+            processProperties: function (clusterOptions, childNodesOptions) {
+              clusterOptions.label = childNodesOptions[0].label + ' [' + childNodesOptions.length + ']'
+              return clusterOptions
+            }
+          })
         }
       }
     })
   }, [])
 
-  return <div className="App" ref={networkRef} />
+  return <div id="graph" className="App" ref={networkRef} />
 }
 
 export default App
