@@ -86,6 +86,8 @@ function App() {
               return containedNodesPositions
             }
           })
+        } else {
+          network.clusterByConnection(params.nodes[0])
         }
       }
     })
